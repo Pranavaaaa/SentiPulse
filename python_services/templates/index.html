@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contactless Heart Rate Estimation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav>
+    <h2>Heart Estimator</h2>
+    <div class="nav-controls">
+      <label class="switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <h1>Contactless Heart Rate Estimation</h1>
+      <button id="start-btn">Estimate Heart Rate</button>
+    </section>
+
+    <section id="method-selection" class="modal hidden">
+      <div class="modal-content">
+        <h2>Select Method</h2>
+        <button class="method-btn" data-method="ica">ICA</button>
+        <button class="method-btn" data-method="pca">PCA</button>
+      </div>
+    </section>
+
+  <section id="upload-modal" class="modal hidden">
+    <div class="modal-content upload-content">
+      <h2>Upload Video</h2>
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="model" id="model-input" value="ica">
+        <input type="file" name="video" accept="video/*" required />
+        <button type="submit" class="btn">Upload & Estimate</button>
+      </form>
+    </div>
+  </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

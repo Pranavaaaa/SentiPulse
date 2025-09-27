@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results - {{ model }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav>
+    <h2>Heart Estimator</h2>
+    <div class="nav-controls">
+      <label class="switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </nav>
+  <main>
+    <section class="results">
+      {% if heart_rate %}
+        <h2>Method: {{ model }}</h2>
+        <h1>{{ heart_rate }} BPM</h1>
+        <div class="plots">
+          <img src="{{ url_for('static', filename='red.png') }}" alt="Red Channel">
+          <img src="{{ url_for('static', filename='green.png') }}" alt="Green Channel">
+          <img src="{{ url_for('static', filename='blue.png') }}" alt="Blue Channel">
+          <img src="{{ url_for('static', filename='signal_' + model.lower() + '.png') }}" alt="Signal">
+          <img src="{{ url_for('static', filename='fft_' + model.lower() + '.png') }}" alt="FFT Spectrum">
+        </div>
+      {% else %}
+        <h1 class="error">{{ error }}</h1>
+      {% endif %}
+      <a href="/" class="btn">Try Again</a>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
