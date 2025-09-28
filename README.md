@@ -10,6 +10,7 @@ A modern full-stack application for real-time physiological and emotional state 
 - **Modern UI**: React frontend with responsive design and dark mode support
 - **Scalable Architecture**: Express.js backend with Python microservice integration
 - **Privacy-focused**: Local processing with secure file handling
+- **AI-Powered Mental Health Support**: CBT-based chatbot using Gemini API for personalized mental health guidance
 
 ## Architecture
 
@@ -40,6 +41,7 @@ A modern full-stack application for real-time physiological and emotional state 
 - **WebSocket** for real-time communication
 - **Helmet** for security
 - **Rate limiting** for API protection
+- **Google Generative AI** for CBT-based mental health support
 
 ### Processing
 - **Python** with OpenCV for video processing
@@ -189,6 +191,49 @@ CORS_ORIGIN=https://yourdomain.com
    ```
 
 3. **Configure reverse proxy** (nginx/Apache) to serve the application
+
+## Mental Health Support Feature
+
+The system now includes an AI-powered mental health support feature that provides CBT-based guidance based on physiological analysis results.
+
+### How it Works
+
+1. **Results Analysis**: After video processing, users can access mental health support
+2. **AI Integration**: Uses Google's Gemini API for intelligent, context-aware responses
+3. **CBT-Based Guidance**: Provides Cognitive Behavioral Therapy techniques and coping strategies
+4. **Personalized Support**: Responses are tailored based on heart rate data and user concerns
+
+### Setup
+
+1. **Get Gemini API Key**: 
+   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Create a new API key
+   - Copy the API key
+
+2. **Configure Environment**:
+   ```bash
+   # Create .env file from env.example
+   cp env.example .env
+   
+   # Add your Gemini API key
+   GEMINI_API_KEY=your_actual_api_key_here
+   ```
+
+3. **Features**:
+   - **Support Button**: Appears in results view after video processing
+   - **Sliding Modal**: Opens from the right side of the screen
+   - **Context-Aware**: Considers heart rate data and conversation history
+   - **CBT Techniques**: Provides evidence-based mental health guidance
+   - **Professional Boundaries**: Always encourages professional help when appropriate
+
+### Usage
+
+1. Process a video to get heart rate results
+2. Click "Get Mental Health Support" button
+3. Chat with the AI assistant about your concerns
+4. Receive personalized CBT-based guidance and coping strategies
+
+**Important**: This feature is for support and guidance only. It is not a replacement for professional medical or mental health care.
 
 ## Future Enhancements
 

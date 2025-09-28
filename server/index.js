@@ -8,9 +8,13 @@ const fs = require('fs-extra');
 const { v4: uuidv4 } = require('uuid');
 const WebSocket = require('ws');
 const { spawn } = require('child_process');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE');
 
 // Security middleware
 app.use(helmet());
@@ -246,6 +250,73 @@ app.get('/api/status/:sessionId', (req, res) => {
     status: 'completed',
     message: 'Processing status endpoint - use WebSocket for real-time updates'
   });
+});
+
+// Gemini AI Chat endpoint for mental health support
+app.post('/api/gemini-chat', async (req, res) => {
+  try {
+    const { message, results, conversationHistory } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Message is required'
+      });
+    }
+
+    // Check if API key is configured
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+      return res.status(500).json({
+        success: false,
+        error: 'Gemini API key not configured. Please set GEMINI_API_KEY environment variable.'
+      });
+    }
+
+    // Create the model
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    // Build context for CBT-based responses
+    let contextPrompt = `You are a compassionate mental health support assistant specializing in Cognitive Behavioral Therapy (CBT). You provide supportive, evidence-based guidance while maintaining professional boundaries.
+
+IMPORTANT: You are NOT a replacement for professional medical or mental health care. Always encourage users to seek professional help when appropriate.
+
+User's physiological data:
+- Heart Rate: ${results?.heart_rate || 'Not available'} BPM
+- Processing Method: ${results?.method || 'Not available'}
+
+Previous conversation context:
+${conversationHistory?.slice(-5).map(msg => 
+  `${msg.type === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+).join('\n') || 'No previous conversation'}
+
+Current user message: ${message}
+
+Please respond as a CBT-based mental health support assistant. Focus on:
+1. Acknowledging their feelings and concerns
+2. Providing practical CBT techniques (thought challenging, behavioral activation, etc.)
+3. Offering coping strategies based on their physiological data
+4. Encouraging professional help when appropriate
+5. Being supportive and non-judgmental
+
+Keep your response concise but helpful (1-2 paragraphs max) and don't repeat yourself and also don't use bold words and also don't use emojis. Don't respond to the user's message if it's not related to the user's physiological data or the user's concerns.`;
+
+    const result = await model.generateContent(contextPrompt);
+    const response = await result.response;
+    const text = response.text();
+
+    res.json({
+      success: true,
+      response: text
+    });
+
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get response from support assistant',
+      details: error.message
+    });
+  }
 });
 
 // Error handling middleware

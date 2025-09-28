@@ -231,7 +231,7 @@ const Results = ({ results, onTryAgain }) => {
           className="btn btn-support"
         >
           <MessageCircle size={20} />
-          Get Mental Health Support
+          Get Health Support
         </button>
         <button
           onClick={() => window.print()}
