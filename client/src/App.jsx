@@ -152,7 +152,7 @@ function App() {
             <div className="card">
               <div className="card-body text-center">
                 <h2 className="text-red-600 mb-4">Processing Error</h2>
-                <p className="mb-6">
+                <p className="error-message">
                   {processingData?.message || 'An unexpected error occurred during video processing.'}
                 </p>
                 <button 

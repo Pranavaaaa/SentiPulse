@@ -32,3 +32,9 @@
     padding: 1rem;
   }
 }
+
+.error-message{
+  color: #b91c1c; /* Tailwind's red-700 */
+  font-weight: 600;
+  margin-bottom: 1rem;
+}

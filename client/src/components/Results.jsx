@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Heart, Download, RotateCcw, Eye, EyeOff, TrendingUp } from 'lucide-react';
+import { Heart, Download, RotateCcw, Eye, EyeOff, TrendingUp, MessageCircle } from 'lucide-react';
+import SupportModal from './SupportModal';
 import './css/Results.css';
 
 const Results = ({ results, onTryAgain }) => {
   const [showPlots, setShowPlots] = useState(true);
   const [selectedPlot, setSelectedPlot] = useState(null);
+  const [showSupportModal, setShowSupportModal] = useState(false);
 
   if (!results) {
     return (
@@ -91,7 +93,7 @@ const Results = ({ results, onTryAgain }) => {
               </div>
               <div>
                 <div className="heart-rate-value">{heart_rate}</div>
-                <div className="heart-rate-text">beats per minute</div>
+                <div className="heart-rate-text">Beats per minute</div>
               </div>
             </div>
             <div className={`heart-rate-status ${heartRateStatus.className}`}>
@@ -225,6 +227,13 @@ const Results = ({ results, onTryAgain }) => {
           Analyze Another Video
         </button>
         <button
+          onClick={() => setShowSupportModal(true)}
+          className="btn btn-support"
+        >
+          <MessageCircle size={20} />
+          Get Mental Health Support
+        </button>
+        <button
           onClick={() => window.print()}
           className="btn btn-outline"
         >
@@ -232,6 +241,14 @@ const Results = ({ results, onTryAgain }) => {
           Print Results
         </button>
       </div>
+
+      {/* Support Modal */}
+      {showSupportModal && (
+        <SupportModal
+          results={results}
+          onClose={() => setShowSupportModal(false)}
+        />
+      )}
     </div>
   );
 };

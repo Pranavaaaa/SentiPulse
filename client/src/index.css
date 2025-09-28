@@ -22,8 +22,8 @@
   /* Text Colors */
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
-  --text-light: #ffffff;
-  --text-muted: #9ca3af;
+  --text-light: #0c0303;
+  --text-muted: #01050d;
   
   /* Accent Colors */
   --accent-primary: #8b5cf6;
@@ -372,13 +372,13 @@ body.dark .form-input {
 
 .status-error {
   background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
+  color: rgb(18, 4, 4);
   box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
 }
 
 .status-info {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
+  color: rgb(9, 8, 8);
   box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
 }
 
