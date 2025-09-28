@@ -127,8 +127,8 @@ const SupportModal = ({ results, onClose }) => {
               <Brain size={24} />
             </div>
             <div>
-              <h3>Mental Health Support</h3>
-              <p>CBT-based guidance and support</p>
+              <h3>Health Support</h3>
+              <p>CBT-Based Guidance and Support</p>
             </div>
           </div>
           <button className="close-btn" onClick={onClose}>
