@@ -1,0 +1,141 @@
+/*
+File: VideoUpload.css
+Place this file next to the component and import it with: import './VideoUpload.css'
+This stylesheet replaces Tailwind utility classes with scoped, production-ready styles.
+*/
+
+:root {
+  --bg: #ffffff;
+  --card: #f8fafc;
+  --muted: #6b7280;
+  --accent: #6c5ce7;
+  --accent-2: #7c3aed;
+  --success: #10b981;
+  --danger: #ef4444;
+  --glass: rgba(255,255,255,0.6);
+  --shadow: 0 6px 18px rgba(15,23,42,0.06);
+  --radius: 12px;
+  --transition: 180ms cubic-bezier(.2,.9,.3,1);
+}
+
+/* Page layout */
+.vu-page {
+  max-width: 880px;
+  margin: 28px auto;
+  padding: 20px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #0f172a;
+}
+
+.vu-card {
+  background: linear-gradient(180deg, var(--card), #ffffff);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.vu-card-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(15,23,42,0.04);
+}
+
+.vu-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vu-icon-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.vu-icon-btn:hover { background: rgba(15,23,42,0.03); }
+
+.vu-header-icon { color: var(--accent-2); width: 28px; height: 28px; }
+.vu-title { margin: 0; font-size: 20px; font-weight: 700; }
+.vu-sub { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+
+.vu-card-body { padding: 20px; }
+.vu-form { display: grid; gap: 18px; }
+.vu-form-group { display: block; }
+.vu-label { display: block; font-weight: 600; margin-bottom: 10px; }
+
+.vu-choice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.vu-choice { cursor: pointer; }
+.vu-sr { position: absolute; left: -9999px; }
+.vu-choice-card {
+  border: 1px solid rgba(15,23,42,0.06);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+}
+.vu-choice:hover .vu-choice-card { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(2,6,23,0.06); }
+.vu-choice.active .vu-choice-card { border-color: var(--accent); background: linear-gradient(180deg, rgba(124,58,237,0.06), rgba(124,58,237,0.02)); }
+.vu-choice.active-purple .vu-choice-card { border-color: var(--accent); background: linear-gradient(180deg, rgba(108,92,231,0.06), rgba(108,92,231,0.02)); }
+
+.vu-choice-icon { width: 28px; height: 28px; margin-bottom: 8px; color: var(--muted); }
+.vu-choice-title { font-weight: 700; }
+.vu-choice-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* Recording area */
+.vu-recording { display: grid; gap: 12px; }
+.vu-camera-box { position: relative; border-radius: 10px; overflow: hidden; background: #eef2ff; min-height: 220px; display: flex; align-items: center; justify-content: center; }
+.vu-video { width: 100%; height: 260px; object-fit: cover; }
+.vu-camera-empty { display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted); }
+
+.vu-rec-indicator { position: absolute; top: 12px; left: 12px; display:flex; gap:8px; align-items:center; background: var(--danger); color: #fff; padding: 6px 10px; border-radius: 999px; font-weight: 600; }
+.vu-rec-dot { width: 8px; height: 8px; background: #fff; border-radius: 50%; animation: vu-pulse 1s infinite; }
+
+@keyframes vu-pulse { 0% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.3); opacity: .6 } 100% { transform: scale(1); opacity: 1 } }
+
+.vu-record-controls { display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+.vu-btn { border: none; padding: 10px 14px; border-radius: 10px; cursor: pointer; display: inline-flex; gap:8px; align-items:center; font-weight: 600; }
+.vu-btn.primary { background: linear-gradient(90deg,var(--accent),var(--accent-2)); color: white; box-shadow: 0 6px 18px rgba(124,58,237,0.14); }
+.vu-btn.outline { background: transparent; border: 1px solid rgba(15,23,42,0.08); }
+.vu-btn.danger { background: var(--danger); color: white; }
+.vu-btn.wide { min-width: 160px; }
+
+/* Dropzone */
+.vu-dropzone { border: 2px dashed rgba(15,23,42,0.06); border-radius: 12px; padding: 30px; text-align:center; cursor:pointer; transition: box-shadow var(--transition), border-color var(--transition); background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(250,250,250,0.5)); }
+.vu-dropzone.active { border-color: var(--accent); box-shadow: 0 8px 20px rgba(108,92,231,0.06); }
+.vu-drop-icon { width: 48px; height: 48px; color: rgba(15,23,42,0.25); margin-bottom: 12px; }
+.vu-drop-title { font-weight: 700; font-size: 16px; }
+.vu-drop-sub { color: var(--muted); font-size: 13px; }
+
+/* File info */
+.vu-file-info { border-radius: 10px; padding: 12px; display:flex; align-items:center; justify-content:space-between; box-shadow: 0 6px 14px rgba(2,6,23,0.03); }
+.vu-file-info.success { background: linear-gradient(180deg, rgba(16,185,129,0.06), rgba(16,185,129,0.02)); border: 1px solid rgba(16,185,129,0.12); }
+.vu-file-left { display:flex; gap:12px; align-items:center; }
+.vu-file-name { font-weight: 700; }
+.vu-file-meta { font-size: 13px; color: var(--muted); }
+.vu-remove { background: transparent; border: none; color: var(--danger); cursor: pointer; font-weight: 700; }
+
+/* Actions */
+.vu-actions { display:flex; gap:12px; justify-content:space-between; }
+.vu-actions .vu-btn { flex: 1; }
+.vu-spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); border-top-color: rgba(255,255,255,0.9); animation: spin 1s linear infinite; display:inline-block; margin-right:8px; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Help section */
+.vu-help { padding: 0; }
+.vu-help-body { display:flex; gap:14px; padding:16px; align-items:flex-start; }
+.vu-help-left { display:flex; align-items:flex-start; color: var(--accent-2); }
+.vu-help-title { margin: 0 0 8px 0; font-weight:700; }
+.vu-help-list { margin:0; padding-left: 18px; color: var(--muted); }
+
+/* Responsive */
+@media (max-width: 720px) {
+  .vu-page { padding: 12px; }
+  .vu-choice-grid { grid-template-columns: 1fr; }
+  .vu-actions { flex-direction: column-reverse; }
+}

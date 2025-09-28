@@ -1,0 +1,316 @@
+.results-container {
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .card {
+    background: #1e1e2f;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    color: #100f0f;
+  }
+  
+  .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .card-body {
+    padding: 2rem;
+  }
+  
+  /* Titles */
+  .card-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+  }
+  
+  .card-subtitle {
+    color: rgba(23, 22, 22, 0.6);
+  }
+  
+  /* No results */
+  .no-results-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .no-results-text {
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Error */
+  .error-icon {
+    color: #ef4444;
+    margin-bottom: 1rem;
+  }
+  
+  .error-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #ef4444;
+  }
+  
+  .error-text {
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Header */
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .icon-box {
+    padding: 0.75rem;
+    border-radius: 1rem;
+    background: linear-gradient(to right, #ec4899, #8b5cf6);
+  }
+  
+  .icon {
+    color: #fbf3f3;
+  }
+  
+  .header-right {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  /* Heart rate */
+  .heart-rate-section {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .heart-rate-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem;
+    border-radius: 1.5rem;
+    background: linear-gradient(to right, rgba(236,72,153,0.2), rgba(139,92,246,0.2));
+    border: 1px solid rgba(236,72,153,0.3);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  
+  .heart-icon-box {
+    padding: 1rem;
+    border-radius: 1rem;
+    background: linear-gradient(to right, #ec4899, #8b5cf6);
+  }
+  
+  .heart-icon {
+    color: #fff;
+    animation: pulse 1.5s infinite;
+  }
+  
+  .heart-rate-value {
+    font-size: 6rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #f472b6, #a78bfa);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  
+  .heart-rate-text {
+    font-size: 1.25rem;
+    color: rgba(238, 5, 5, 0.7);
+  }
+  
+  .heart-rate-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+  }
+  
+  /* Status colors */
+  .status-low {
+    background: rgba(59,130,246,0.2);
+    color: #3b82f6;
+  }
+  
+  .status-normal {
+    background: rgba(16,185,129,0.2);
+    color: #10b981;
+  }
+  
+  .status-high {
+    background: rgba(239,68,68,0.2);
+    color: #ef4444;
+  }
+  
+  /* Details */
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  .detail-card {
+    background: linear-gradient(to right, #f7b0d3, #8b5cf6);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  
+  .detail-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  
+  .detail-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+  }
+  
+  /* Plots */
+  .plots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+    gap: 1.5rem;
+  }
+  
+  .plot-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .plot-label.red { color: #ef4444; }
+  .plot-label.green { color: #22c55e; }
+  .plot-label.blue { color: #3b82f6; }
+  .plot-label.purple { color: #a855f7; }
+  .plot-label.orange { color: #f97316; }
+  
+  .plot-image {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  
+  .plot-image:hover {
+    opacity: 0.8;
+  }
+  
+  /* Modal */
+  .plot-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+  }
+  
+  .plot-modal-content {
+    max-width: 60rem;
+    max-height: 90vh;
+    background: #1e1e2f;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .plot-modal-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .plot-modal-body {
+    padding: 1rem;
+    overflow: auto;
+  }
+  
+  .plot-modal-body img {
+    max-width: 100%;
+    max-height: 80vh;
+    margin: 0 auto;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+  }
+  
+  .close-btn:hover {
+    color: #fff;
+  }
+  
+  /* Actions */
+  .results-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(to right, #ec4899, #8b5cf6);
+    color: #fff;
+    border: none;
+  }
+  
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+  
+  .btn-outline {
+    border: 2px solid rgba(255,255,255,0.3);
+    background: transparent;
+    color: #fff;
+  }
+  
+  .btn-outline:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  
+  /* Animations */
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+  

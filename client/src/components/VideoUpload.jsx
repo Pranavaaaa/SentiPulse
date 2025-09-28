@@ -1,13 +1,28 @@
-import React, { useState, useCallback } from 'react';
+// File: VideoUpload.jsx
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Video, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Upload, Video, AlertCircle, ArrowLeft, Camera, Square, Play } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { processVideo } from '../services/api';
+import './css/VideoUpload.css';
 
 const VideoUpload = ({ onUpload, onError, onBack }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [method, setMethod] = useState('ica');
   const [isUploading, setIsUploading] = useState(false);
+
+  // Video recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [recordedVideo, setRecordedVideo] = useState(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'record'
+
+  // Refs for video recording
+  const videoRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const recordingIntervalRef = useRef(null);
 
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
@@ -39,31 +54,30 @@ const VideoUpload = ({ onUpload, onError, onBack }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedFile) {
       toast.error('Please select a video file first.');
       return;
     }
 
     setIsUploading(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('video', selectedFile);
       formData.append('method', method);
 
       const result = await processVideo(formData);
-      
+
       if (result.success) {
-        // Always pass the result - the parent will handle it
         onUpload({
           sessionId: result.sessionId,
           method: method,
           fileName: selectedFile.name,
           fileSize: selectedFile.size,
-          result: result // Always pass the result
+          result: result
         });
-        
+
         if (result.heart_rate !== undefined) {
           toast.success('Video processed successfully!');
         } else {
@@ -89,147 +103,314 @@ const VideoUpload = ({ onUpload, onError, onBack }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // Video recording functions
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user'
+        }, 
+        audio: true 
+      });
+
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setIsCameraActive(true);
+      toast.success('Camera activated successfully!');
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      toast.error('Failed to access camera. Please check permissions.');
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+    setIsRecording(false);
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+    setRecordingTime(0);
+  };
+
+  const startRecording = () => {
+    if (!streamRef.current) return;
+
+    try {
+      const mediaRecorder = new MediaRecorder(streamRef.current, {
+        mimeType: 'video/webm;codecs=vp9'
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+      const chunks = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const videoFile = new File([blob], 'recorded-video.webm', { type: 'video/webm' });
+        setRecordedVideo(videoFile);
+        setSelectedFile(videoFile);
+        toast.success('Recording completed!');
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // Start recording timer
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+
+      toast.success('Recording started!');
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast.error('Failed to start recording.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+        recordingIntervalRef.current = null;
+      }
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
   return (
-    <div className="container max-w-4xl mx-auto px-4">
-      <div className="card animate-slide-in-up">
-        <div className="card-header flex flex-col items-center">
-          <div className="flex items-center gap-3 mb-2">
-            <button
-              onClick={onBack}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <ArrowLeft size={20} />
+    <div className="vu-page">
+      <div className="vu-card">
+        <div className="vu-card-header">
+          <div className="vu-header-left">
+            <button onClick={onBack} className="vu-icon-btn" aria-label="Back">
+              <ArrowLeft />
             </button>
-            <Video className="text-blue-500" size={24} />
-            <h2 className="text-2xl font-bold">Upload Video</h2>
+            <Video className="vu-header-icon" />
+            <h2 className="vu-title">Upload Video</h2>
           </div>
-          <p className="text-gray-600 dark:text-gray-300">
-            Select a video file for physiological analysis
-          </p>
+          <p className="vu-sub">Select a video file for physiological analysis</p>
         </div>
 
-        <div className="card-body">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="vu-card-body">
+          <form onSubmit={handleSubmit} className="vu-form">
+            {/* Upload Mode Selection */}
+            <div className="vu-form-group">
+              <label className="vu-label">Upload Method</label>
+              <div className="vu-choice-grid">
+                <label className={`vu-choice ${uploadMode === 'file' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="uploadMode"
+                    value="file"
+                    checked={uploadMode === 'file'}
+                    onChange={(e) => {
+                      setUploadMode(e.target.value);
+                      if (isCameraActive) stopCamera();
+                    }}
+                    className="vu-sr"
+                  />
+                  <div className="vu-choice-card">
+                    <Upload className="vu-choice-icon" />
+                    <div className="vu-choice-title">Upload File</div>
+                    <div className="vu-choice-sub">Select from computer</div>
+                  </div>
+                </label>
+
+                <label className={`vu-choice ${uploadMode === 'record' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="uploadMode"
+                    value="record"
+                    checked={uploadMode === 'record'}
+                    onChange={(e) => setUploadMode(e.target.value)}
+                    className="vu-sr"
+                  />
+                  <div className="vu-choice-card">
+                    <Camera className="vu-choice-icon" />
+                    <div className="vu-choice-title">Record Video</div>
+                    <div className="vu-choice-sub">Use camera</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             {/* Method Selection */}
-            <div className="form-group">
-              <label className="form-label">Processing Method</label>
-              <div className="grid grid-cols-2 gap-4">
-                <label className="relative cursor-pointer">
+            <div className="vu-form-group">
+              <label className="vu-label">Processing Method</label>
+              <div className="vu-choice-grid">
+                <label className={`vu-choice ${method === 'ica' ? 'active-purple' : ''}`}>
                   <input
                     type="radio"
                     name="method"
                     value="ica"
                     checked={method === 'ica'}
                     onChange={(e) => setMethod(e.target.value)}
-                    className="sr-only"
+                    className="vu-sr"
                   />
-                  <div className={`p-4 border-2 rounded-lg text-center transition-all ${
-                    method === 'ica' 
-                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' 
-                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                  }`}>
-                    <div className="font-semibold">ICA</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      Independent Component Analysis
-                    </div>
+                  <div className="vu-choice-card">
+                    <div className="vu-choice-title">ICA</div>
+                    <div className="vu-choice-sub">Independent Component Analysis</div>
                   </div>
                 </label>
-                
-                <label className="relative cursor-pointer">
+
+                <label className={`vu-choice ${method === 'pca' ? 'active-purple' : ''}`}>
                   <input
                     type="radio"
                     name="method"
                     value="pca"
                     checked={method === 'pca'}
                     onChange={(e) => setMethod(e.target.value)}
-                    className="sr-only"
+                    className="vu-sr"
                   />
-                  <div className={`p-4 border-2 rounded-lg text-center transition-all ${
-                    method === 'pca' 
-                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' 
-                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                  }`}>
-                    <div className="font-semibold">PCA</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      Principal Component Analysis
-                    </div>
+                  <div className="vu-choice-card">
+                    <div className="vu-choice-title">PCA</div>
+                    <div className="vu-choice-sub">Principal Component Analysis</div>
                   </div>
                 </label>
               </div>
             </div>
 
-            {/* File Upload Area */}
-            <div className="form-group">
-              <label className="form-label">Video File</label>
-              <div
-                {...getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
-                  isDragActive
-                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-                }`}
-              >
-                <input {...getInputProps()} />
-                <Upload className="mx-auto text-gray-400 mb-4" size={48} />
-                {isDragActive ? (
-                  <p className="text-lg font-medium text-purple-600 dark:text-purple-400">
-                    Drop the video file here...
-                  </p>
-                ) : (
-                  <div>
-                    <p className="text-lg font-medium mb-2">
-                      Drag & drop a video file here, or click to select
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      MP4, AVI, MOV, WebM up to 100MB
-                    </p>
+            {/* Recording Interface */}
+            {uploadMode === 'record' && (
+              <div className="vu-form-group">
+                <label className="vu-label">Camera Recording</label>
+                <div className="vu-recording">
+                  <div className="vu-camera-box">
+                    <video ref={videoRef} autoPlay muted playsInline className={`vu-video ${!isCameraActive ? 'hidden' : ''}`} />
+                    {!isCameraActive && (
+                      <div className="vu-camera-empty">
+                        <Camera size={48} />
+                        <p>Camera not active</p>
+                      </div>
+                    )}
+
+                    {isRecording && (
+                      <div className="vu-rec-indicator">
+                        <div className="vu-rec-dot" />
+                        <span className="vu-rec-text">REC {formatTime(recordingTime)}</span>
+                      </div>
+                    )}
                   </div>
-                )}
+
+                  <div className="vu-record-controls">
+                    {!isCameraActive ? (
+                      <button type="button" onClick={startCamera} className="vu-btn primary">
+                        <Camera /> Start Camera
+                      </button>
+                    ) : (
+                      <>
+                        {!isRecording ? (
+                          <button type="button" onClick={startRecording} className="vu-btn primary">
+                            <Play /> Start Recording
+                          </button>
+                        ) : (
+                          <button type="button" onClick={stopRecording} className="vu-btn danger">
+                            <Square /> Stop Recording
+                          </button>
+                        )}
+                        <button type="button" onClick={stopCamera} className="vu-btn outline">
+                          Stop Camera
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {recordedVideo && (
+                    <div className="vu-file-info success">
+                      <div className="vu-file-left">
+                        <Video />
+                        <div>
+                          <div className="vu-file-name">{recordedVideo.name}</div>
+                          <div className="vu-file-meta">{formatFileSize(recordedVideo.size)} • Duration: {formatTime(recordingTime)}</div>
+                        </div>
+                      </div>
+                      <button type="button" className="vu-remove" onClick={() => { setRecordedVideo(null); setSelectedFile(null); setRecordingTime(0); }}>
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* File Upload Area */}
+            {uploadMode === 'file' && (
+              <div className="vu-form-group">
+                <label className="vu-label">Video File</label>
+                <div {...getRootProps()} className={`vu-dropzone ${isDragActive ? 'active' : ''}`}>
+                  <input {...getInputProps()} />
+                  <Upload className="vu-drop-icon" />
+                  {isDragActive ? (
+                    <p className="vu-drop-text">Drop the video file here...</p>
+                  ) : (
+                    <div>
+                      <p className="vu-drop-title">Drag & drop a video file here, or click to select</p>
+                      <p className="vu-drop-sub">MP4, AVI, MOV, WebM up to 100MB</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Selected File Info */}
-            {selectedFile && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                <div className="flex items-center gap-3">
-                  <Video className="text-green-600" size={20} />
-                  <div className="flex-1">
-                    <div className="font-medium text-green-800 dark:text-green-200">
-                      {selectedFile.name}
-                    </div>
-                    <div className="text-sm text-green-600 dark:text-green-300">
-                      {formatFileSize(selectedFile.size)}
-                    </div>
+            {selectedFile && uploadMode === 'file' && (
+              <div className="vu-file-info success">
+                <div className="vu-file-left">
+                  <Video />
+                  <div>
+                    <div className="vu-file-name">{selectedFile.name}</div>
+                    <div className="vu-file-meta">{formatFileSize(selectedFile.size)}</div>
                   </div>
                 </div>
               </div>
             )}
 
             {/* Submit Button */}
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={onBack}
-                className="btn btn-outline flex-1"
-                disabled={isUploading}
-              >
-                <ArrowLeft size={20} />
-                Back
+            <div className="vu-actions">
+              <button type="button" onClick={onBack} className="vu-btn outline" disabled={isUploading}>
+                <ArrowLeft /> Back
               </button>
-              <button
-                type="submit"
-                className="btn btn-primary flex-1"
-                disabled={!selectedFile || isUploading}
-              >
+
+              <button type="submit" className="vu-btn primary wide" disabled={!selectedFile || isUploading || (uploadMode === 'record' && isCameraActive && !recordedVideo)}>
                 {isUploading ? (
                   <>
-                    <div className="spinner" />
-                    Uploading...
+                    <span className="vu-spinner" />
+                    {uploadMode === 'record' ? 'Processing...' : 'Uploading...'}
                   </>
                 ) : (
                   <>
-                    <Upload size={20} />
-                    Upload & Process
+                    {uploadMode === 'record' ? <Camera /> : <Upload />} 
+                    {uploadMode === 'record' ? 'Process Recording' : 'Upload & Process'}
                   </>
                 )}
               </button>
@@ -239,21 +420,21 @@ const VideoUpload = ({ onUpload, onError, onBack }) => {
       </div>
 
       {/* Help Section */}
-      <div className="mt-6 card">
-        <div className="card-body">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="text-blue-500 mt-1" size={20} />
-            <div>
-              <h3 className="font-semibold mb-2">Tips for Best Results</h3>
-              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                <li>• Ensure good lighting and clear visibility of the face</li>
-                <li>• Keep the camera stable during recording</li>
-                <li>• Record for at least 10-30 seconds for accurate results</li>
-                <li>• Avoid excessive movement or talking during recording</li>
-                <li>• ICA method works better for complex lighting conditions</li>
-                <li>• PCA method is faster but may be less accurate in some cases</li>
-              </ul>
-            </div>
+      <div className="vu-card vu-help">
+        <div className="vu-help-body">
+          <div className="vu-help-left">
+            <AlertCircle />
+          </div>
+          <div>
+            <h3 className="vu-help-title">Tips for Best Results</h3>
+            <ul className="vu-help-list">
+              <li>Ensure good lighting and clear visibility of the face</li>
+              <li>Keep the camera stable during recording</li>
+              <li>Record for at least 10-30 seconds for accurate results</li>
+              <li>Avoid excessive movement or talking during recording</li>
+              <li>ICA method works better for complex lighting conditions</li>
+              <li>PCA method is faster but may be less accurate in some cases</li>
+            </ul>
           </div>
         </div>
       </div>

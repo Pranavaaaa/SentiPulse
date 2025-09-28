@@ -236,6 +236,17 @@ body.dark p {
   transform: translateY(-2px);
 }
 
+.btn-red {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-red:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl), 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
 .btn-lg {
   padding: var(--space-4) var(--space-8);
   font-size: 1.125rem;
